@@ -20,9 +20,14 @@ def function(s):
         else:
             # ERROR HANDLING
             print("error")
-# saumil make convert to binary (8 bit)
-def makehere(y):
-    return "X"
+# saumil make convert to binary (8 bit)   ->>>>>>>>>>>>>>> DONE AUR BATAO
+def binary(n):
+    s=''
+    b=0
+    while n>=1:
+        s+=str(n%2)
+        n=n//2
+    return ("0"*(8-len(s))+s)
 
 # checking for labels if any
 def check_labels(i):
