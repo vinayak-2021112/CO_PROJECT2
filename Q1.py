@@ -33,7 +33,7 @@ def binary(n):
     while n >= 1:
         s += str(n % 2)
         n = n // 2
-    return "0" * (8 - len(s)) + s
+    return "0" * (8 - len(s)) + s[::-1]
 
 
 # checking for labels if any
