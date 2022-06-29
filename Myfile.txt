@@ -3,5 +3,6 @@ loop: mov R2 R3
 mov R1 R2
 add R1 R1 R2
 st R1 y
+jlt 10001001
 jmp loop
 hlt

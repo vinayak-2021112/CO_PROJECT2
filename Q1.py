@@ -102,15 +102,17 @@ def apply(i):
     if k[0] in ["ld", "st"]:
         string += instruction[k[0]] + register[k[1]] + binary(pcNo)
         pcNo+=1
-    if k[0] in ["jmp", "jlt", "jgt", "je"]:
+    if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] in label.keys():
         string += instruction[k[0]] + "000" + label[k[1]][0]
+    if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] not in label.keys():
+        string += instruction[k[0]] + "000" + k[1]
     if k[0] == "hlt":
         string += instruction[k[0]] + "00000000000"
     arr.append(string)
 
 
 function(s)
-print(label)
+
 for i in range(len(arr)):
     print(arr[i])
 
