@@ -13,8 +13,13 @@ f = open("Myfile.txt", "r")
 
 # extracting individual lines from file
 s = f.read().split("\n")
-
-
+pcNo=len(s)
+x=0
+for i in s:
+    k=i.split(" ")
+    if k[0]=="var":
+        x+=1
+pcNo-=x
 def function(s):
     for i in s:
         # will pass only the part of the string after a valid label
@@ -24,6 +29,7 @@ def function(s):
         else:
             # ERROR HANDLING
             print("error",i)
+
 
 
 # saumil make convert to binary (8 bit)   ->>>>>>>>>>>>>>> DONE AUR BATAO
@@ -41,7 +47,7 @@ count=0 #change made for resolution of X problem
 def check_labels(i):
     global count
     k = i.split(" ")
-    if k[0] =="mov":
+    if k[0] =="mov" or k[0]=="var":
         return 0
     elif k[0] not in instruction.keys():
         # format for a label should be label: instruction.
@@ -64,6 +70,7 @@ def check_labels(i):
 
 
 def apply(i):
+    global pcNo
     k = i.split(" ")
     string = ""
     # seperate conditions for miv immediate and mov register
@@ -78,7 +85,8 @@ def apply(i):
     if k[0] in ["div", "not", "cmp"]:
         string += instruction[k[0]] + "00000" + register[k[1]] + register[k[2]]
     if k[0] in ["ld", "st"]:
-        string += instruction[k[0]] + register[k[1]] + binary(count+2)  #for X 
+        string += instruction[k[0]] + register[k[1]] + binary(pcNo)
+        pcNo+=1
     if k[0] in ["jmp", "jlt", "jgt", "je"]:
         string += instruction[k[0]] + "000" + k[2]
     if k[0] == "hlt":
@@ -87,8 +95,10 @@ def apply(i):
 
 
 function(s)
-print(arr)
-
+if(x>0):
+    print(arr[x:])
+else:
+    print(arr)
 """
 1001000100001010
 1001001001100100
