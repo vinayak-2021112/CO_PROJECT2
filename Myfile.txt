@@ -5,4 +5,5 @@ add R1 R1 R2
 st R1 y
 jlt 10001001
 jmp loop
+add R2 R2 R1
 hlt
