@@ -37,7 +37,9 @@ def binary(n):
 
 
 # checking for labels if any
+count=0 #change made for resolution of X problem
 def check_labels(i):
+    global count
     k = i.split(" ")
     if k[0] =="mov":
         return 0
@@ -46,14 +48,18 @@ def check_labels(i):
         if k[0][-1] == ":":
             label_len = len(k[0])
             if i[label_len] == " ":
+                count=count+1  # for X
                 return label_len + 1
             # if the syntax is not in in instruction and is not a label returning -1
             else:
+                count=count+1   #for X
                 return -1
         else:
+            count=count+1    #for X
             return -1
     else:
         # returning 0 if there is no label
+        count=count+1       #for X
         return 0
 
 
@@ -72,7 +78,7 @@ def apply(i):
     if k[0] in ["div", "not", "cmp"]:
         string += instruction[k[0]] + "00000" + register[k[1]] + register[k[2]]
     if k[0] in ["ld", "st"]:
-        string += instruction[k[0]] + register[k[1]] + k[2]
+        string += instruction[k[0]] + register[k[1]] + binary(count+2)  #for X 
     if k[0] in ["jmp", "jlt", "jgt", "je"]:
         string += instruction[k[0]] + "000" + k[2]
     if k[0] == "hlt":
