@@ -1,0 +1,5 @@
+var y
+mov R1 R2
+add R1 R1 R2
+st R1 y
+hlt
