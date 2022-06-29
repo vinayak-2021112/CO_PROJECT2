@@ -1,5 +1,5 @@
 # dictionaries
-from pdb import line_prefix
+
 
 
 instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
