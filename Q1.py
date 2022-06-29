@@ -1,4 +1,7 @@
 # dictionaries
+from pdb import line_prefix
+
+
 instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
                "mul": "10110", "div": "10111", "rs": "11000", "ls": "11001", "xor": "11010", "or": "11011",
                "and": "11100", "not": "11101", "cmp": "11110", "jmp": "11111", "jlt": "01100", "jgt": "01101",
@@ -8,7 +11,9 @@ register = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5
 # variables
 arr = []
 line_counter = 0
+
 label = {}
+
 # reading from file
 f = open("Myfile.txt", "r")
 
@@ -22,13 +27,19 @@ for i in s:
         x+=1
 pcNo-=x
 def function(s):
+    global line_counter
     for i in s:
         # will pass only the part of the string after a valid label
         lab_len = check_labels(str(i))
         if(lab_len>0):
+            d = []
+            line_counter+=1
+            d.append(binary(line_counter-x))
             apply(str(i)[lab_len:])
-            label[i[0:lab_len-2]]=arr[-1]
+            d.append(arr[-1])
+            label[i[0:lab_len-2]]=d
         if lab_len == 0:
+            line_counter+=1
             apply(str(i)[lab_len:])
         else:
             # ERROR HANDLING
@@ -92,7 +103,7 @@ def apply(i):
         string += instruction[k[0]] + register[k[1]] + binary(pcNo)
         pcNo+=1
     if k[0] in ["jmp", "jlt", "jgt", "je"]:
-        string += instruction[k[0]] + "000" + k[2]
+        string += instruction[k[0]] + "000" + label[k[1]][0]
     if k[0] == "hlt":
         string += instruction[k[0]] + "00000000000"
     arr.append(string)
