@@ -8,6 +8,7 @@ register = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5
 # variables
 arr = []
 line_counter = 0
+label = {}
 # reading from file
 f = open("Myfile.txt", "r")
 
@@ -24,7 +25,10 @@ def function(s):
     for i in s:
         # will pass only the part of the string after a valid label
         lab_len = check_labels(str(i))
-        if lab_len >= 0:
+        if(lab_len>0):
+            apply(str(i)[lab_len:])
+            label[i[0:lab_len-2]]=arr[-1]
+        if lab_len == 0:
             apply(str(i)[lab_len:])
         else:
             # ERROR HANDLING
@@ -95,16 +99,10 @@ def apply(i):
 
 
 function(s)
-<<<<<<< HEAD
+print(label)
 for i in range(len(arr)):
     print(arr[i])
 
-=======
-if(x>0):
-    print(arr[x:])
-else:
-    print(arr)
->>>>>>> refs/remotes/origin/main
 """
 1001000100001010
 1001001001100100
