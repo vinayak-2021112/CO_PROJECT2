@@ -14,6 +14,8 @@ label = {}
 # reading from file
 f = open("Myfile.txt", "r")
 
+
+
 # extracting individual lines from file
 s = f.read().split("\n")
 pcNo = len(s)
@@ -25,11 +27,26 @@ for i in s:
 pcNo -= x
 ErrorFlag = 0
 
-
+#checking if the immediate value is > 8bit
+def immediate_check(i):
+    print(i)
+    register_count = 0
+    for j in i:
+        if j in register.keys():
+            register_count+=1;
+    if register_count==1:
+        try:
+            assert(i[2][1:]<=255)
+        except AssertionError:
+            print("Immediate value at line ",line_counter,"is more than 8 bits")
+            ErrorFlag+=1
 def function(s):
     global line_counter, ErrorFlag
     for i in s:
+        #check for illegal immediate value
+        # immediate_check(i.split(" "))
         # will pass only the part of the string after a valid label
+        
         try:
             assert i.split(" ") != ['']
         except AssertionError:
@@ -105,17 +122,24 @@ def apply(i):
 
     # seperate conditions for miv immediate and mov register
     if k[0] == "mov" and k[2] not in register.keys():
-        string += instruction["movi"] + register[k[1]] + binary(int(k[2][1:]))
+        try:
+            assert int(k[2][1:]) <= 255
+            string += instruction["movi"] + register[k[1]] + binary(int(k[2][1:]))
+        except AssertionError:
+            print("Error Immediate value is greater than 8 Bits at line ", line_counter)
+            ErrorFlag += 1
+            return
+        
     if k[0] == "mov" and k[2] in register.keys():
         string += instruction["movr"] + "00000" + register[k[1]] + register[k[2]]
     if k[0] in ["add", "sub", "mul", "xor", "or", "and"]:
         string += instruction[k[0]] + "00" + register[k[1]] + register[k[2]] + register[k[3]]
     if k[0] in ["ls", "rs"]:
         try:
-            assert len(binary(int(k[2][1:]))) == 8
+            assert int(k[2][1:]) <= 255
             string += instruction[k[0]] + register[k[1]] + binary(int(k[2][1:]))
         except AssertionError:
-            print("Immediate Not of 8 Bits", i)
+            print("Error Immediate value is greater than 8 Bits at line ", line_counter)
             ErrorFlag += 1
             return
     if k[0] in ["div", "not", "cmp"]:
