@@ -29,6 +29,7 @@ ErrorFlag = 0
 
 #checking if the immediate value is > 8bit
 def immediate_check(i):
+    global ErrorFlag
     print(i)
     register_count = 0
     for j in i:
