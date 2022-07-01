@@ -1,9 +1,11 @@
-# dictionaries
 instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
                "mul": "10110", "div": "10111", "rs": "11000", "ls": "11001", "xor": "11010", "or": "11011",
                "and": "11100", "not": "11101", "cmp": "11110", "jmp": "11111", "jlt": "01100", "jgt": "01101",
                "je": "01111", "hlt": "01010", "var": "00000"}
-register = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"};
+register = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
+
+flag="0000000000000000"
+dictreg={"R0":0,"R1":0,"R2":0,"R3":0,"R4":0,"R5":0,"R6":0}
 
 # variables
 arr = []
@@ -12,7 +14,18 @@ line_counter = 0
 label = {}
 
 # reading from file
-f = open("Myfile.txt", "r")
+f = open("Myfile.txt", "a+")
+#f.write(str(input().split()))
+while True:
+    try:
+        s=input()
+        f.write(s)
+        if s!="hlt":
+            f.write("\n")
+    except EOFError:
+        break
+f.close()
+f = open("Myfile.txt","r")
 
 
 
@@ -29,6 +42,7 @@ ErrorFlag = 0
 
 #checking if the immediate value is > 8bit
 def immediate_check(i):
+    global ErrorFlag
     print(i)
     register_count = 0
     for j in i:
@@ -85,9 +99,52 @@ def binary(n):
         n = n // 2
     return "0" * (8 - len(s)) + s[::-1]
 
+def xor_or_and(s,a,b):
+    if s=="or":
+        return a | b
+    if s=="xor":
+        return a^b
+    if s=="and":
+        return a & b
+    return (f)
+
+#function for flag 
+def flagfunc(a,b,flag):
+    if(a==b):
+        flag[-1]=1
+        return flag
+    if(a>b):
+        flag[-2]=1
+        return flag
+    elif (a<b):
+        flag[-3]=1
+        return flag
+
+
+def add_sub_mul_xor_or_and(s,a,b):
+    if s=="mul":
+        if a*b<255:
+            return a*b   #check krna hai 
+        else:
+            return -1
+    if s=="add":
+        if a+b<255:
+            return (a+b)
+        else:
+            return -1
+    if s=="sub":
+        if a-b>0:
+            return (a-b)
+        else:
+            return -1
+    if s==("xor" or "or"):
+        return xor_or_and(s,a,b)
+
+
 
 # checking for labels if any
 count = 0  # change made for resolution of X problem
+
 
 
 def check_labels(i):
@@ -122,6 +179,7 @@ def apply(i):
 
     # seperate conditions for miv immediate and mov register
     if k[0] == "mov" and k[2] not in register.keys():
+        dictreg[k[1]]=int(k[2][1:])
         try:
             assert int(k[2][1:]) <= 255
             string += instruction["movi"] + register[k[1]] + binary(int(k[2][1:]))
@@ -132,8 +190,14 @@ def apply(i):
         
     if k[0] == "mov" and k[2] in register.keys():
         string += instruction["movr"] + "00000" + register[k[1]] + register[k[2]]
+        dictreg[k[1]]=dictreg[k[2]]
     if k[0] in ["add", "sub", "mul", "xor", "or", "and"]:
         string += instruction[k[0]] + "00" + register[k[1]] + register[k[2]] + register[k[3]]
+        dictreg[k[1]]=add_sub_mul_xor_or_and(k[0],dictreg[k[1]],dictreg[k[2]])
+        if k[0] in ["add","sub","mul"]:
+            if k[0]==("add" or "sub" or "mul") and dictreg[k[1]]==-1:
+                flag[-3]=1
+
     if k[0] in ["ls", "rs"]:
         try:
             assert int(k[2][1:]) <= 255
@@ -144,7 +208,16 @@ def apply(i):
             return
     if k[0] in ["div", "not", "cmp"]:
         string += instruction[k[0]] + "00000" + register[k[1]] + register[k[2]]
+        if k[0]=="div":
+            dictreg["R0"]=dictreg[k[1]]//dictreg[k[2]]
+            dictreg["R1"]=dictreg[k[1]]%dictreg[k[2]]
+        if k[0]=="not":
+            #to be done
+            print("to be done")
+        if k[0]=="cmp":
+            flag=flagfunc(dictreg[k[1]],dictreg[k[2]],flag)
     if k[0] in ["ld", "st"]:
+        #dictreg stuff is left
         string += instruction[k[0]] + register[k[1]] + binary(pcNo)
         pcNo += 1
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] in label.keys():
@@ -177,3 +250,5 @@ function(s)
 if ErrorFlag == 0:
     for i in range(x, len(arr)):
         print(arr[i])
+f.close()
+f=open('MyFile.txt', 'w').close()
