@@ -31,13 +31,13 @@ f = open("Myfile.txt","r")
 
 # extracting individual lines from file
 s = f.read().split("\n")
-pcNo = len(s)
+
 x = 0
 for i in s:
     k = i.split(" ")
     if k[0] == "var":
         x += 1
-pcNo -= x
+
 ErrorFlag = 0
 
 #checking if the immediate value is > 8bit
@@ -173,7 +173,7 @@ def check_labels(i):
 
 
 def apply(i):
-    global pcNo, ErrorFlag
+    global ErrorFlag
     k = i.split(" ")
     string = ""
 
@@ -218,8 +218,8 @@ def apply(i):
             flag=flagfunc(dictreg[k[1]],dictreg[k[2]],flag)
     if k[0] in ["ld", "st"]:
         #dictreg stuff is left
-        string += instruction[k[0]] + register[k[1]] + binary(pcNo)
-        pcNo += 1
+        string += instruction[k[0]] + register[k[1]] + binary(line_counter)
+        
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] in label.keys():
         string += instruction[k[0]] + "000" + label[k[1]][0]
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] not in label.keys():
