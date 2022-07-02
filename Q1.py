@@ -13,7 +13,7 @@ arr = []
 line_counter = 0
 
 label = {}
-
+variables = {}
 # reading from file
 f = open("Myfile.txt", "a+")
 #f.write(str(input().split()))
@@ -208,8 +208,11 @@ def apply(i):
     global pcNo, ErrorFlag
     k = i.split(" ")
     string = ""
-
+    
+    if k[0] == "var":
+        variables[k[1]] = 0
     # seperate conditions for miv immediate and mov register
+    
     if k[0] == "mov" and k[2] not in register.keys():
         dictreg[k[1]]=int(k[2][1:])
         try:
@@ -223,7 +226,11 @@ def apply(i):
     if k[0] == "mov" and k[2] in register.keys():
         string += instruction["movr"] + "00000" + register[k[1]] + register[k[2]]
         dictreg[k[1]]=dictreg[k[2]]
+    
     if k[0] in ["add", "sub", "mul", "xor", "or", "and"]:
+        if(k[1] not in register.keys() or k[2] not in register.keys() or k[3] not in register.keys()):
+            print("ERROR: Invalid instruction syntax for ",k[0]," at line ",line_counter)
+            return
         string += instruction[k[0]] + "00" + register[k[1]] + register[k[2]] + register[k[3]]
         dictreg[k[1]]=add_sub_mul_xor_or_and(k[0],dictreg[k[1]],dictreg[k[2]])
         if k[0] in ["add","sub","mul"]:
@@ -231,6 +238,8 @@ def apply(i):
                 flag[-3]=1
 
     if k[0] in ["ls", "rs"]:
+        if k[1] not in variables.keys():
+            print("ERROR: undefined variable at line ",line_counter)
         try:
             assert int(k[2][1:]) <= 255
             string += instruction[k[0]] + register[k[1]] + binary(int(k[2][1:]))
@@ -243,9 +252,9 @@ def apply(i):
         if k[0]=="div":
             dictreg["R0"]=dictreg[k[1]]//dictreg[k[2]]
             dictreg["R1"]=dictreg[k[1]]%dictreg[k[2]]
-        if k[0]=="not":
-            #to be done
-            print("to be done")
+        # if k[0]=="not":
+        #     #to be done
+        #     print("to be done")
         if k[0]=="cmp":
             flag=flagfunc(dictreg[k[1]],dictreg[k[2]],flag)
     if k[0] in ["ld", "st"]:
@@ -255,7 +264,7 @@ def apply(i):
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] in label.keys():
         string += instruction[k[0]] + "000" + label[k[1]][0]
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] not in label.keys():
-        string += instruction[k[0]] + "000" + k[1]
+        print("ERROR: Invalid memory address at line ",line_counter)
     if k[0] == "hlt":
         string += instruction[k[0]] + "00000000000"
     arr.append(string)
@@ -266,6 +275,7 @@ for i in range(x,len(s)):
     if k[0]=="var":
         ErrorFlag+=1
         print("ERROR: Var declared at incorrect position at line ",i+1)
+        
     if i==len(s)-1:
         if k[0]!="hlt":
             hltFlag+=1
@@ -274,10 +284,10 @@ for i in range(x,len(s)):
             ErrorFlag+=1
             print("ERROR: hlt used before last instruction at line ",i+1)
             break
-
 if hltFlag==1:
-    ErrorFlag+=1
-    print("ERROR: hlt not in given file")
+        ErrorFlag+=1
+        print("ERROR: hlt not in given file")
+
 function(s)
 if ErrorFlag == 0:
     for i in range(x, len(arr)):
