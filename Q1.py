@@ -1,3 +1,4 @@
+# dictionaries
 instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
                "mul": "10110", "div": "10111", "rs": "11000", "ls": "11001", "xor": "11010", "or": "11011",
                "and": "11100", "not": "11101", "cmp": "11110", "jmp": "11111", "jlt": "01100", "jgt": "01101",
@@ -31,13 +32,13 @@ f = open("Myfile.txt","r")
 
 # extracting individual lines from file
 s = f.read().split("\n")
-
+pcNo = len(s)
 x = 0
 for i in s:
     k = i.split(" ")
     if k[0] == "var":
         x += 1
-
+pcNo -= x
 ErrorFlag = 0
 
 #checking if the immediate value is > 8bit
@@ -52,7 +53,7 @@ def immediate_check(i):
         try:
             assert(i[2][1:]<=255)
         except AssertionError:
-            print("Immediate value at line ",line_counter,"is more than 8 bits")
+            print("ERROR: Immediate value at line ",line_counter+1,"is more than 8 bits")
             ErrorFlag+=1
 def function(s):
     global line_counter, ErrorFlag
@@ -87,7 +88,7 @@ def function(s):
                 return
         else:
             # ERROR HANDLING
-            print("Error incorrect Label Syntax in line:", i)
+            return
 
 
 # saumil make convert to binary (8 bit)   ->>>>>>>>>>>>>>> DONE AUR BATAO
@@ -148,32 +149,63 @@ count = 0  # change made for resolution of X problem
 
 
 def check_labels(i):
-    global count
+    global count,ErrorFlag
     k = i.split(" ")
-    if k[0] == "mov" or k[0] == "var":
+    # if k[0] == "mov" or k[0] == "var":
+    #     return 0
+    # elif k[0] not in instruction.keys():
+    #     # format for a label should be label: instruction.
+    #     if k[0][-1] == ":":
+    #         label_len = len(k[0])
+    #         if i[label_len] == " ":
+    #             count = count + 1  # for X
+    #             return label_len + 1
+    #         # if the syntax is not in in instruction and is not a label returning -1
+    #         else:
+    #             count = count + 1  # for X
+    #             return -1
+    #     else:
+    #         count = count + 1  # for X
+    #         return -1
+    # else:
+    #     # returning 0 if there is no label
+    #     count = count + 1  # for X
+    #     return 0
+    if k[0]=="mov" or k[0]=="var":
         return 0
     elif k[0] not in instruction.keys():
-        # format for a label should be label: instruction.
         if k[0][-1] == ":":
-            label_len = len(k[0])
-            if i[label_len] == " ":
-                count = count + 1  # for X
-                return label_len + 1
-            # if the syntax is not in in instruction and is not a label returning -1
+            label_len = len(k[0]);
+            if (i[label_len] == " ") and (i[label_len+1]!=" "):
+                if k[1] in instruction.keys() or k[1]=="mov":
+                    return label_len+1
+                else:
+                    ErrorFlag+=1
+                    print("ERROR: Invalid label syntax at line ",line_counter+1)
+                    return -1
             else:
-                count = count + 1  # for X
+                ErrorFlag+=1
+                print("ERROR: Invalid label syntax at line ",line_counter+1)
                 return -1
+        elif k[1] == ":":
+            ErrorFlag+=1
+            
+            print("ERROR: Invalid label syntax at line ",line_counter+1)
+            return -1
         else:
-            count = count + 1  # for X
+            ErrorFlag+=1
+            
+            print("ERROR: Invalid instruction syntax at line ",line_counter+1)
             return -1
     else:
-        # returning 0 if there is no label
-        count = count + 1  # for X
         return 0
+
+            
+
 
 
 def apply(i):
-    global ErrorFlag
+    global pcNo, ErrorFlag
     k = i.split(" ")
     string = ""
 
@@ -184,7 +216,7 @@ def apply(i):
             assert int(k[2][1:]) <= 255
             string += instruction["movi"] + register[k[1]] + binary(int(k[2][1:]))
         except AssertionError:
-            print("Error Immediate value is greater than 8 Bits at line ", line_counter)
+            print("ERROR: Immediate value is greater than 8 Bits at line ", line_counter)
             ErrorFlag += 1
             return
         
@@ -203,7 +235,7 @@ def apply(i):
             assert int(k[2][1:]) <= 255
             string += instruction[k[0]] + register[k[1]] + binary(int(k[2][1:]))
         except AssertionError:
-            print("Error Immediate value is greater than 8 Bits at line ", line_counter)
+            print("ERROR: Immediate value is greater than 8 Bits at line ", line_counter)
             ErrorFlag += 1
             return
     if k[0] in ["div", "not", "cmp"]:
@@ -218,8 +250,8 @@ def apply(i):
             flag=flagfunc(dictreg[k[1]],dictreg[k[2]],flag)
     if k[0] in ["ld", "st"]:
         #dictreg stuff is left
-        string += instruction[k[0]] + register[k[1]] + binary(line_counter)
-        
+        string += instruction[k[0]] + register[k[1]] + binary(pcNo)
+        pcNo += 1
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] in label.keys():
         string += instruction[k[0]] + "000" + label[k[1]][0]
     if k[0] in ["jmp", "jlt", "jgt", "je"] and k[1] not in label.keys():
@@ -233,22 +265,22 @@ for i in range(x,len(s)):
     k = s[i].split(" ")
     if k[0]=="var":
         ErrorFlag+=1
-        print("Var declared incorrect position:",s[i])
+        print("ERROR: Var declared at incorrect position at line ",i+1)
     if i==len(s)-1:
         if k[0]!="hlt":
             hltFlag+=1
     if i<len(s)-1:
         if k[0]=="hlt":
             ErrorFlag+=1
-            print("hlt used before last instruction:",s[i])
+            print("ERROR: hlt used before last instruction at line ",i+1)
             break
 
 if hltFlag==1:
     ErrorFlag+=1
-    print("hlt not in given file")
+    print("ERROR: hlt not in given file")
 function(s)
 if ErrorFlag == 0:
     for i in range(x, len(arr)):
         print(arr[i])
 f.close()
-f=open('MyFile.txt', 'w').close()
+f=open('Myfile.txt', 'w').close()
