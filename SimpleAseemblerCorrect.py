@@ -99,15 +99,17 @@ def xor_or_and(s, a, b):
 
 # function for flag
 def flagfunc(a, b, flag):
-    if a == b:
-        flag[-1] = 1
+    flag="0000000000000000"
+    if (a == b):
+        flag = 15*"0"+"1"
         return flag
     if (a > b):
-        flag[-2] = 1
+        flag = 14*"0"+"1"+"0"
         return flag
     elif (a < b):
-        flag[-3] = 1
+        flag = 13*"0"+"1"+"00"
         return flag
+
 
 
 def add_sub_mul_xor_or_and(s, a, b):
