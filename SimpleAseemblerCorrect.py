@@ -227,7 +227,7 @@ def apply(i):
                 if k[0] == ("add" or "sub" or "mul") and dictreg[k[1]] == -1:
                     flag[-3] = 1
         except AssertionError:
-            ErrorArray.append("Insufficient Registers")
+            ErrorArray.append(f"Insufficient Registers at line {line_counter}")
             ErrorFlag+=1
             addtoLabel=False
             return
@@ -264,7 +264,7 @@ def apply(i):
         string += instruction[k[0]] + "00000000000"
     arr.append(string)
 
-
+function(s)
 hltFlag = 0
 #print(x,len(s),s)
 for i in range(x, len(s)):
@@ -287,7 +287,7 @@ if hltFlag == 1:
     ErrorFlag += 1
     ErrorArray.append("ERROR: hlt not in given file")
 
-function(s)
+
 if ErrorFlag == 0:
     for i in range(x, len(arr)):
         print(arr[i])
@@ -297,3 +297,4 @@ f.close()
 f = open('Myfile.txt', 'w')
 f.write("")
 f.close()
+
