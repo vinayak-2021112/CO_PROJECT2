@@ -1,4 +1,5 @@
 # dictionaries
+
 instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
                "mul": "10110", "div": "10111", "rs": "11000", "ls": "11001", "xor": "11010", "or": "11011",
                "and": "11100", "not": "11101", "cmp": "11110", "jmp": "11111", "jlt": "01100", "jgt": "01101",
@@ -51,7 +52,10 @@ def function(s):
         # check for illegal immediate value
         # immediate_check(i.split(" "))
         # will pass only the part of the string after a valid label
-
+        j = 0
+        while(i[j]==" "):
+            j+=1
+        i = i[j:]
         try:
             assert i.split(" ") != ['']
         except AssertionError:
@@ -169,7 +173,7 @@ def check_labels(i):
                 ErrorFlag += 1
                 ErrorArray.append(f"ERROR: Invalid label syntax at line {line_counter + 1}")
                 return -1
-        elif len(k)!=1:
+        elif len(k)!=1 and k[1]==":":
             if k[1] == ":":
                 ErrorFlag += 1
                 ErrorArray.append(f"ERROR: Invalid label syntax at line {line_counter + 1}")
@@ -179,7 +183,7 @@ def check_labels(i):
 
         else:
             ErrorFlag += 1
-            ErrorArray.append(f"ERROR: Invalid label syntax at line {line_counter + 1}")
+            ErrorArray.append(f"ERROR: Invalid instruction syntax at line {line_counter + 1}")
             return -1
     else:
         return 0
@@ -269,8 +273,13 @@ def apply(i):
 function(s)
 hltFlag = 0
 #print(x,len(s),s)
+
 for i in range(x, len(s)):
   #  print(i)
+    j = 0
+    while(s[i][j]==" "):
+        j+=1
+    s[i] = s[i][j:]
     k = s[i].split(" ")
 
     if k[0] == "var":
