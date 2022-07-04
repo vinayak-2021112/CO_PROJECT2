@@ -3,6 +3,7 @@ instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011",
             "and": "11100", "not": "11101", "cmp": "11110", "jmp": "11111", "jlt": "01100", "jgt": "01101",
             "je": "01111", "hlt": "01010", "var": "00000"}
 register = {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110", "FLAGS": "111"}
+reg =  {"R0": "000", "R1": "001", "R2": "010", "R3": "011", "R4": "100", "R5": "101", "R6": "110"}
 
 flag = "0000000000000000"
 dictreg = {"R0": 0, "R1": 0, "R2": 0, "R3": 0, "R4": 0, "R5": 0, "R6": 0}
@@ -99,7 +100,6 @@ def xor_or_and(s, a, b):
         return a ^ b
     if s == "and":
         return a & b
-    return (f)
 
 
 # function for flag
@@ -136,7 +136,7 @@ def add_sub_mul_xor_or_and(s, a, b):
         else:
             #ErrorArray.append("Underflow")
             return -1
-    if s == ("xor" or "or"):
+    if s in ["xor","or","and"]:
         return xor_or_and(s, a, b)
 
 
@@ -204,8 +204,9 @@ def apply(i):
 #flag error handling
     if len(k)>1:
         if "FLAGS" in k:
+           
             try:
-                assert k[0]=="mov" and k[2] in register
+                assert k[0]=="mov" and k[2] in reg
                 dictreg[k[2]]=flag
             except AssertionError:
                 ErrorArray.append(f"ERROR: Illegal use of flag register at line {line_counter}")
@@ -240,8 +241,9 @@ def apply(i):
                 ErrorArray.append(f"ERROR: Invalid instruction syntax for {k[0]} at line  {line_counter}")
                 addtoLabel=False
                 return
+            
             string += instruction[k[0]] + "00" + register[k[1]] + register[k[2]] + register[k[3]]
-            dictreg[k[1]] = add_sub_mul_xor_or_and(k[0], dictreg[k[1]], dictreg[k[2]])
+            dictreg[k[1]] = add_sub_mul_xor_or_and(k[0], dictreg[k[2]], dictreg[k[3]])
             if k[0] in ["add", "sub", "mul"]:
                 if k[0] == ("add" or "sub" or "mul") and dictreg[k[1]] == -1:
                     flag[-3] = 1
@@ -252,8 +254,8 @@ def apply(i):
             return
 
     if k[0] in ["ls", "rs"]:
-        if k[1] not in variables.keys():
-            ErrorArray.append(f"ERROR: undefined variable at line {line_counter}")
+        if k[1] not in reg.keys():
+            ErrorArray.append(f"ERROR:invalid instruction syntax at line {line_counter}")
         try:
             assert int(k[2][1:]) <= 255
             string += instruction[k[0]] + register[k[1]] + binary(int(k[2][1:]))
@@ -270,7 +272,9 @@ def apply(i):
         #     #to be done
         #     print("to be done")
         if k[0] == "cmp":
+            
             flag = flagfunc(dictreg[k[1]], dictreg[k[2]], flag)
+           
     if k[0] in ["ld", "st"]:
         # dictreg stuff is left
         string += instruction[k[0]] + register[k[1]] + binary(pcNo)
