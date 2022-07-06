@@ -257,7 +257,7 @@ try:
             # check for illegal immediate value
             # immediate_check(i.split(" "))
             # will pass only the part of the string after a valid label
-            
+            line_counter+=1
             try:
                 assert i.split(" ") != ['']
                 j = 0
@@ -266,19 +266,19 @@ try:
                 i = i[j:]
                 lab_len = check_labels(str(i))
                 if lab_len > 0:
-                    line_counter+=1
+                    
                     apply(str(i)[lab_len:])        
                 elif lab_len == 0:
-                    line_counter += 1
+                    
                     apply(str(i)[lab_len:])
 
                 else:
                     # ERROR HANDLING
-                    line_counter+=1
+                    
                     continue
                 
             except AssertionError:
-                ErrorArray.append(f"ERROR: Blank Line at {line_counter+1}")
+                ErrorArray.append(f"ERROR: Blank Line at {line_counter}")
                 ErrorFlag += 1
 
             
@@ -384,6 +384,6 @@ try:
     f.write("")
     f.close()
 except:
-    print(f"ERROR: General Syntax error at line {line_counter}")
+    print(f"General Syntax Error at line {line_counter}")
 
 
