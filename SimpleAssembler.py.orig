@@ -1,4 +1,3 @@
-
 try:
     instruction = {"add": "10000", "sub": "10001", "movi": "10010", "movr": "10011", "ld": "10100", "st": "10101",
                     "mul": "10110", "div": "10111", "rs": "11000", "ls": "11001", "xor": "11010", "or": "11011",
@@ -159,7 +158,6 @@ try:
                 assert len(k) == 4
                 if k[1] not in register.keys() or k[2] not in register.keys() or k[3] not in register.keys():
                     ErrorArray.append(f"ERROR: Invalid instruction syntax for {k[0]} at line  {line_counter + 1}")
-                    ErrorFlag+=1
                     addtoLabel = False
                     return
 
@@ -396,15 +394,14 @@ try:
             if i == len(s) - 1:
                 if k[0] != "hlt":
                     hltFlag += 1
-            
+            if i < len(s) - 1:
+                if k[0] == "hlt":
+                    ErrorFlag += 1
+                    ErrorArray.append(f"ERROR: hlt used before last instruction at line {i + 1}")
         except AssertionError:
             
             continue
-    for i in range(len(arr[:len(arr)-1])):
-        if arr[i]=="0101000000000000" :
-            ErrorFlag+=1
-            ErrorArray.append(f"Error hlt used before last instruction at line {i+1}")
-            continue
+
     if arr[-1] == "0101000000000000":
         pass
     else:
